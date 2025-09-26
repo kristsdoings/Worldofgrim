@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Life After Quiz — Plan Your Legacy</title>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+
+<!-- CSS -->
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header class="hero" role="banner">
+  <div class="hero-inner animate-hero">
+    <h1>Plan Your Legacy</h1>
+    <div class="tag">A gentle, thoughtful space to imagine your final wishes — whimsical or sincere.</div>
+    <a class="cta" href="#about">Discover More</a>
+  </div>
+</header>
+
+  <main>
+    <section id="about" class="wrap reveal-section" aria-labelledby="about-title">
+      <h2 id="about-title">What Is This?</h2>
+      <div class="card">
+        <p>
+          <strong>Life After Quiz</strong> invites you to reflect on life, death, and the whimsical or meaningful
+          ways you’d like to be remembered. Whether it’s a banana-themed farewell, a red coffin, or a
+          simple gathering under the stars — here, you can imagine and record it.
+        </p>
+      </div>
+    </section>
+
+    <section class="wrap quotes" aria-labelledby="quotes-title">
+      <h2 id="quotes-title" class="reveal-section">Reflections on Life & Death</h2>
+
+      <div class="quote-grid">
+        <blockquote class="quote">“To the well-organized mind, death is but the next great adventure.”<span>– J.K. Rowling</span></blockquote>
+        <blockquote class="quote">“Life is what you celebrate. All of it. Even its end.”<span>– Joanne Harris</span></blockquote>
+        <blockquote class="quote">“Our dead are never dead to us, until we have forgotten them.”<span>– George Eliot</span></blockquote>
+        <blockquote class="quote">“Every man’s life ends the same way. It is only the details of how he lived and how he died that distinguish one man from another.”<span>– Ernest Hemingway</span></blockquote>
+        <blockquote class="quote">“What you leave behind is not what is engraved in stone monuments, but what is woven into the lives of others.”<span>– Pericles</span></blockquote>
+        <blockquote class="quote">“The song is ended, but the melody lingers on.”<span>– Irving Berlin</span></blockquote>
+      </div>
+    </section>
+
+    <!-- SIMPLIFIED QUIZ SECTION -->
+    <section id="quiz" class="wrap reveal-section" aria-labelledby="quiz-title">
+      <h2 id="quiz-title">Your Legacy Quiz</h2>
+      <p>Answer these lighthearted and thoughtful questions about your afterlife wishes.</p>
+      <button class="cta quiz-btn" type="button">Take Quiz</button>
+    </section>
+
+  </main>
+
+  <footer>
+    &copy; 2025 Life After Quiz — Dream it. Plan it. Live it.
+  </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Reveal sections
+  const sectionObserver = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('visible');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.18 });
+
+  document.querySelectorAll('.reveal-section').forEach(el => sectionObserver.observe(el));
+
+  // Reveal quotes individually with stagger
+  const quoteObserver = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('visible');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.22 });
+
+  const quotes = Array.from(document.querySelectorAll('.quote'));
+  quotes.forEach((q, i) => {
+    q.style.transitionDelay = (i * 120) + 'ms';
+    quoteObserver.observe(q);
+  });
+});
+</script>
+</body>
+</html>
