@@ -1,16 +1,53 @@
 import React, { useState } from 'react';
-import { FileText, MapPin, Heart, CheckCircle, Circle, ArrowRight, Crown } from 'lucide-react';
+import { MapPin, Heart, CheckCircle, Circle, ArrowRight, Crown } from 'lucide-react';
+import logo from './logo.png';
 
 const countries = ["USA", "India", "UK"];
 const religions = ["Christianity", "Islam", "Hinduism"];
-const afterlifeExperiences = [
-  "Turn yourself into a diamond",
-  "Compost yourself into a tree",
-  "Become a coral reef memorial",
-  "Launch ashes into space",
-  "Vinyl record pressing",
-  "Fireworks memorial",
-];
+const afterlifeOptions = [
+  {
+    label: "Turn yourself into a diamond",
+    company: "EternaGem",
+    promo: "10% off first carat — use code GEM10",
+    blurb: "Lab-grown memorial diamonds created from cremation carbon, available in multiple cuts and settings.",
+    cta: "Explore EternaGem",
+  },
+  {
+    label: "Compost yourself into a tree",
+    company: "GreenRoot Memorials",
+    promo: "Free sapling upgrade this month",
+    blurb: "Natural soil transformation and a living tree memorial planted in certified partner groves.",
+    cta: "View GreenRoot groves",
+  },
+  {
+    label: "Become a coral reef memorial",
+    company: "ReefLegacy",
+    promo: "$200 off reef placement — code OCEAN200",
+    blurb: "Eco-friendly memorial reefs supporting marine habitats with GPS-marked locations for family visits.",
+    cta: "See ReefLegacy sites",
+  },
+  {
+    label: "Launch ashes into space",
+    company: "Celestis Tribute",
+    promo: "Complimentary keepsake flight patch",
+    blurb: "Symbolic spaceflight memorial services with launch-day streaming and mission certification.",
+    cta: "Check launch windows",
+  },
+  {
+    label: "Vinyl record pressing",
+    company: "EchoPress Records",
+    promo: "Buy 10 records, get 2 free",
+    blurb: "Custom vinyl pressings with ashes infused into the record, including bespoke artwork and tracks.",
+    cta: "Design your record",
+  },
+  {
+    label: "Fireworks memorial",
+    company: "Skyfare Remembrance",
+    promo: "Free color upgrade on aerial shells",
+    blurb: "Licensed pyrotechnic displays incorporating memorial ash, coordinated by certified technicians.",
+    cta: "Plan a display",
+  },
+] as const;
 
 const paperworkSteps = {
   USA: {
@@ -105,6 +142,9 @@ function App() {
   const [showLegacyOptions, setShowLegacyOptions] = useState<boolean>(false);
   const [isLegacyMode, setIsLegacyMode] = useState<boolean>(false);
   const [selectedAfterlife, setSelectedAfterlife] = useState<string>("");
+  const [showLegacyForm, setShowLegacyForm] = useState<boolean>(false);
+  const [legacyFormSubmitted, setLegacyFormSubmitted] = useState<boolean>(false);
+  const [legacyNotes, setLegacyNotes] = useState<string[]>(["", "", "", "", ""]);
 
   const currentSteps = selectedCountry && selectedReligion 
     ? paperworkSteps[selectedCountry as keyof typeof paperworkSteps]?.[selectedReligion as keyof typeof paperworkSteps.USA] || []
@@ -260,14 +300,30 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center mb-4">
-            <FileText className="w-8 h-8 text-blue-600 mr-3" />
-            <h1 className="text-4xl font-bold text-slate-800">World of Grim</h1>
+        <div className="mb-12 bg-slate-100 border-b border-slate-200">
+          <div className="flex items-center justify-center">
+            <button
+              aria-label="Home"
+              className="inline-flex items-center gap-2 text-slate-900 font-semibold hover:text-slate-700"
+              onClick={() => {
+                setIsPremiumActive(false);
+                resetSelection();
+                setShowLegacyForm(false);
+                setLegacyFormSubmitted(false);
+                setLegacyNotes(["", "", "", "", ""]);
+                setIsLegacyMode(false);
+                setView('landing');
+                setShowLegacyOptions(false);
+              }}
+            >
+              <img src={logo} alt="World of Grim logo" className="h-[150px] w-auto rounded" />
+            </button>
           </div>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Thoughtful tools for planning ahead and supporting loved ones when it matters most.
-          </p>
+          <div className="mt-6 text-center">
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+              Thoughtful tools for planning ahead and supporting loved ones when it matters most.
+            </p>
+          </div>
         </div>
 
         {view === 'landing' && (
@@ -276,7 +332,7 @@ function App() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <button
                 className="w-full sm:w-auto px-6 py-3 rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow"
-                onClick={() => { setView('guide'); setIsLegacyMode(true); resetSelection(); setShowLegacyOptions(false); }}
+                onClick={() => { setShowLegacyForm(true); setLegacyFormSubmitted(false); setShowLegacyOptions(false); setIsLegacyMode(true); }}
               >
                 Your legacy
               </button>
@@ -307,26 +363,142 @@ function App() {
             )}
 
             {/* Services overview */}
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-                <h3 className="text-xl font-semibold text-slate-800 mb-2">Plan Your Legacy</h3>
-                <p className="text-slate-600 mb-3">Capture wishes, contacts, and key documents in one organized place. Share your preferences to ease decisions for those you love.</p>
-                <ul className="list-disc list-inside text-slate-600 space-y-1">
-                  <li>Store preferences for religious or cultural practices</li>
-                  <li>Document locations for insurance, banking, and will</li>
-                  <li>Generate personalized checklists</li>
-                </ul>
+            {!showLegacyForm && (
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                  <h3 className="text-xl font-semibold text-slate-800 mb-2">Plan Your Legacy</h3>
+                  <p className="text-slate-600 mb-3">Capture wishes, contacts, and key documents in one organized place. Share your preferences to ease decisions for those you love.</p>
+                  <ul className="list-disc list-inside text-slate-600 space-y-1">
+                    <li>Store preferences for religious or cultural practices</li>
+                    <li>Document locations for insurance, banking, and will</li>
+                    <li>Generate personalized checklists</li>
+                  </ul>
+                </div>
+                <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                  <h3 className="text-xl font-semibold text-slate-800 mb-2">Support Close Ones</h3>
+                  <p className="text-slate-600 mb-3">Step-by-step guidance tailored by country and religious practice to help navigate paperwork swiftly and respectfully.</p>
+                  <ul className="list-disc list-inside text-slate-600 space-y-1">
+                    <li>Clear steps with progress tracking</li>
+                    <li>Region-specific permits and contacts</li>
+                    <li>Premium tips and templates</li>
+                  </ul>
+                </div>
               </div>
-              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-                <h3 className="text-xl font-semibold text-slate-800 mb-2">Support Close Ones</h3>
-                <p className="text-slate-600 mb-3">Step-by-step guidance tailored by country and religious practice to help navigate paperwork swiftly and respectfully.</p>
-                <ul className="list-disc list-inside text-slate-600 space-y-1">
-                  <li>Clear steps with progress tracking</li>
-                  <li>Region-specific permits and contacts</li>
-                  <li>Premium tips and templates</li>
-                </ul>
+            )}
+
+            {/* Afterlife Experiences above form when Premium active in Legacy */}
+            {showLegacyForm && isLegacyMode && isPremiumActive && (
+              <div className="mb-8">
+                <div className="bg-white rounded-2xl shadow-lg p-8 border border-slate-100 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center mb-6">
+                    <Crown className="w-6 h-6 text-amber-600 mr-3" />
+                    <h2 className="text-2xl font-semibold text-slate-800">Afterlife Experiences</h2>
+                  </div>
+                  <p className="text-slate-600 mb-4">Explore unconventional memorial options as part of planning your legacy.</p>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {afterlifeOptions.map((opt) => (
+                      <button
+                        key={opt.label}
+                        onClick={() => setSelectedAfterlife(opt.label)}
+                        className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${
+                          selectedAfterlife === opt.label
+                            ? 'border-amber-500 bg-amber-50 text-amber-900'
+                            : 'border-slate-200 hover:border-amber-300 hover:bg-amber-25'
+                        }`}
+                      >
+                        <div className="font-medium">{opt.label}</div>
+                      </button>
+                    ))}
+                  </div>
+                  {selectedAfterlife && (
+                    <div className="mt-4 text-sm text-slate-700 bg-amber-50 border border-amber-200 rounded-xl p-4">
+                      {(() => {
+                        const info = afterlifeOptions.find((o) => o.label === selectedAfterlife);
+                        if (!info) return null;
+                        return (
+                          <div className="space-y-1">
+                            <div className="text-slate-900 font-semibold">{info.company}</div>
+                            <div className="text-slate-700">{info.blurb}</div>
+                            <div className="text-amber-700 font-medium">{info.promo}</div>
+                            <button className="mt-2 inline-flex items-center px-3 py-1 rounded-lg bg-amber-400 hover:bg-amber-500 text-slate-900 text-xs font-semibold">
+                              {info.cta}
+                            </button>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Your legacy - comments form (prototype) */}
+            {showLegacyForm && (
+              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                {!legacyFormSubmitted ? (
+                  <div>
+                    <h3 className="text-xl font-semibold text-slate-800 mb-4">Your legacy notes</h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      {[0,1,2,3,4].map((i) => (
+                        <div key={i} className="flex flex-col">
+                          <label className="text-sm font-medium text-slate-700 mb-2">Note {i+1}</label>
+                          <textarea
+                            className="min-h-[110px] rounded-lg border border-slate-300 focus:border-slate-400 focus:outline-none p-3 text-slate-800"
+                            placeholder="Write your comments here..."
+                            value={legacyNotes[i]}
+                            onChange={(e) => {
+                              const next = [...legacyNotes];
+                              next[i] = e.target.value;
+                              setLegacyNotes(next);
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-4 flex items-center justify-end gap-3">
+                      <button
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-400 hover:bg-amber-500 text-slate-900 text-sm font-semibold"
+                        onClick={() => { setIsPremiumOpen(true); }}
+                      >
+                        <Crown className="w-4 h-4" /> Premium
+                      </button>
+                      <button
+                        className="px-5 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 text-sm font-medium"
+                        onClick={() => setLegacyFormSubmitted(true)}
+                      >
+                        OK
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <h3 className="text-xl font-semibold text-slate-800 mb-4">Your legacy notes</h3>
+                    <ul className="space-y-3">
+                      {legacyNotes.map((note, idx) => (
+                        <li key={idx} className="rounded-lg border border-slate-200 p-3 text-slate-700">
+                          <div className="text-sm font-medium text-slate-500 mb-1">Note {idx+1}</div>
+                          <div>{note || <span className="text-slate-400">(empty)</span>}</div>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="mt-4 flex items-center justify-end gap-3">
+                      <button
+                        className="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 text-sm"
+                        onClick={() => { setLegacyFormSubmitted(false); }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="px-5 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-500 text-sm font-medium"
+                        onClick={() => { setView('guide'); setIsLegacyMode(true); resetSelection(); }}
+                      >
+                        Continue to guide
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
@@ -389,8 +561,8 @@ function App() {
           </div>
           )}
 
-          {/* Afterlife Experiences (Legacy mode only) */}
-          {view === 'guide' && isLegacyMode && (
+          {/* Afterlife Experiences (Legacy mode + Premium only) */}
+          {view === 'guide' && isLegacyMode && isPremiumActive && (
             <div className="mb-8">
               <div className="bg-white rounded-2xl shadow-lg p-8 border border-slate-100 hover:shadow-xl transition-all duration-300">
                 <div className="flex items-center mb-6">
@@ -399,23 +571,36 @@ function App() {
                 </div>
                 <p className="text-slate-600 mb-4">Explore unconventional memorial options as part of planning your legacy.</p>
                 <div className="grid sm:grid-cols-2 gap-3">
-                  {afterlifeExperiences.map((exp) => (
+                  {afterlifeOptions.map((opt) => (
                     <button
-                      key={exp}
-                      onClick={() => setSelectedAfterlife(exp)}
+                      key={opt.label}
+                      onClick={() => setSelectedAfterlife(opt.label)}
                       className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${
-                        selectedAfterlife === exp
+                        selectedAfterlife === opt.label
                           ? 'border-amber-500 bg-amber-50 text-amber-900'
                           : 'border-slate-200 hover:border-amber-300 hover:bg-amber-25'
                       }`}
                     >
-                      <div className="font-medium">{exp}</div>
+                      <div className="font-medium">{opt.label}</div>
                     </button>
                   ))}
                 </div>
                 {selectedAfterlife && (
-                  <div className="mt-4 text-sm text-slate-700">
-                    Selected: <span className="font-medium">{selectedAfterlife}</span>
+                  <div className="mt-4 text-sm text-slate-700 bg-amber-50 border border-amber-200 rounded-xl p-4">
+                    {(() => {
+                      const info = afterlifeOptions.find((o) => o.label === selectedAfterlife);
+                      if (!info) return null;
+                      return (
+                        <div className="space-y-1">
+                          <div className="text-slate-900 font-semibold">{info.company}</div>
+                          <div className="text-slate-700">{info.blurb}</div>
+                          <div className="text-amber-700 font-medium">{info.promo}</div>
+                          <button className="mt-2 inline-flex items-center px-3 py-1 rounded-lg bg-amber-400 hover:bg-amber-500 text-slate-900 text-xs font-semibold">
+                            {info.cta}
+                          </button>
+                        </div>
+                      );
+                    })()}
                   </div>
                 )}
               </div>
@@ -550,6 +735,27 @@ function App() {
         </div>
       </div>
     </div>
+    {/* Global Back/Home button (shown on all non-home views) */}
+    {view !== 'landing' && (
+      <div className="container mx-auto px-4 max-w-4xl">
+        <div className="mt-8 mb-6 flex justify-center">
+          <button
+            onClick={() => {
+              setIsPremiumActive(false);
+              resetSelection();
+              setShowLegacyForm(false);
+              setLegacyFormSubmitted(false);
+              setLegacyNotes(["", "", "", "", ""]);
+              setIsLegacyMode(false);
+              setView('landing');
+            }}
+            className="px-5 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium shadow-sm"
+          >
+            Home (prototype)
+          </button>
+        </div>
+      </div>
+    )}
     {/* Premium Modal */}
     {isPremiumOpen && (
       <div className="fixed inset-0 z-50 flex items-center justify-center">
